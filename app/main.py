@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 import os
 from psycopg2.extras import RealDictCursor
 import time
+
+from app.routers import vote
 from .import model, schemas,utils
 from .model import Post
 from sqlalchemy.orm import Session
@@ -26,6 +28,7 @@ app=FastAPI()
 app.include_router(post.router)
 app.include_router(user.router)
 app.include_router(auth.router)
+app.include_router(vote.router)
 
 
 # @app.get("/")
