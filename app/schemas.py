@@ -26,6 +26,7 @@ class UserLogin(BaseModel):
     password:str
 
 class PostBase(BaseModel):
+    id:int
     title: str
     content: str
     published: Optional[bool] = True
@@ -51,3 +52,6 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     id:Optional[int]
 
+class PostOut(BaseModel):
+    Post:Post
+    votes:int

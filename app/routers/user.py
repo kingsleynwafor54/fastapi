@@ -8,7 +8,7 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
-
+from typing import List
 
 router=APIRouter(
     prefix="/users",tags=['Users']
@@ -40,4 +40,13 @@ def get_user(id:int, db:Annotated[Session, Depends(get_db)]):
     user=db.query(model.User).filter(model.User.id==id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"User with id:{id} does not exist")
+    return user 
+
+
+@router.get('/',response_model=List[schemas.UserOut])
+def get_user( db:Annotated[Session, Depends(get_db)],limit:int=10):
+    user=db.query(model.User).limit(limit).all()
+    print(type(user))
+    # if not user:
+    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"User with id:{id} does not exist")
     return user    

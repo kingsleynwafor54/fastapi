@@ -9,7 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 from ..import oauth2
-
+from sqlalchemy import func
 router=APIRouter(
      prefix="/posts",tags=["Posts"]
 )
@@ -24,9 +24,8 @@ def create_post(post: schemas.Post, db:Session=Depends(get_db),current_user:int=
     print(current_user.email)
     return {'data':new_post}
 
-@router.get('/')
+@router.get('/',response_model=List[schemas.PostOut])
 def get_post(db:Annotated[Session,Depends(get_db)],  
-             response_model=List[schemas.PostResponse],
              skip: int = 0,
              limit: int = 10,search:Optional[str]="",current_user:int=Depends(oauth2.get_current_user)):
         total = db.query(model.Post).count()
@@ -39,19 +38,29 @@ def get_post(db:Annotated[Session,Depends(get_db)],
             .limit(limit)
             .all()
         )
+        results=db.query(model.Post,func.count(model.Vote.post_id).label("votes")).join(model.Vote,model.Vote.post_id==model.Post.id,isouter=True).\
+        group_by(model.Post.id)\
+        .filter(model.Post.title.contains(search))\
+        .offset(skip)\
+        .limit(limit)\
+        .all()
+        return results
+        # return {
+        #     "total": total,
+        #     "skip": skip,
+        #     "limit": limit,
+        #     "data": posts
+        # }
 
-        return {
-            "total": total,
-            "skip": skip,
-            "limit": limit,
-            "data": posts
-        }
 
-
-@router.get('/{id}',response_model=schemas.PostResponse)
+@router.get('/{id}',response_model=schemas.PostOut)
 def get_posts(id:int,db: Annotated[Session, Depends(get_db)],response:Response,
               current_user:int=Depends(oauth2.get_current_user)):
-    posts = db.query(model.Post).filter(model.Post.id==id).first()
+    # posts = db.query(model.Post).filter(model.Post.id==id).first()
+    posts=db.query(model.Post,func.count(model.Vote.post_id).label("votes")).join(model.Vote,model.Vote.post_id==model.Post.id,isouter=True).\
+        group_by(model.Post.id)\
+        .filter(model.Post.id==id)\
+        .first()
     if not posts:
         # response.status_code=404
         # response.status_code=status.HTTP_404_NOT_FOUND
