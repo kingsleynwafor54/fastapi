@@ -31,10 +31,8 @@ load_dotenv()
 app=FastAPI()
 
 origins = [
-    "http://localhost.tiangolo.com",
-    "https://localhost.tiangolo.com",
-    "http://localhost",
-    "http://localhost:8080",
+   "http://18.175.160.169/" ,
+   "http://127.0.0.1:8000"
       
 ]
 
@@ -45,11 +43,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.include_router(post.router)
-app.include_router(user.router)
-app.include_router(auth.router)
-app.include_router(vote.router)
+# app.include_router(post.router)
+# app.include_router(user.router)
+# app.include_router(auth.router)
+# app.include_router(vote.router)
 
+app.include_router(auth.router, prefix="/login")   # or "/auth" if multiple auth endpoints
+app.include_router(post.router, prefix="/posts")
+app.include_router(user.router, prefix="/users")
+app.include_router(vote.router, prefix="/vote")
 
 # @app.get("/")
 # async def root(db:Session=Depends(get_db)):
