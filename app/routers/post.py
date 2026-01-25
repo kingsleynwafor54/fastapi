@@ -16,7 +16,7 @@ router=APIRouter(
 
 
 @router.post('/',status_code=status.HTTP_201_CREATED)
-def create_post(post: schemas.Post, db:Session=Depends(get_db),current_user:int=Depends(oauth2.get_current_user)):
+def create_post(post: schemas.PostCreate, db:Session=Depends(get_db),current_user:int=Depends(oauth2.get_current_user)):
     new_post=model.Post(title=post.title, content=post.content, published=post.published,owner_id=current_user.id)
     db.add(new_post)
     db.commit()
@@ -86,8 +86,8 @@ def delete_post(id:int, db:Annotated[Session,Depends(get_db)]):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @router.put('/{id}')
-def update_post(id:int, posts:schemas.PostBase,db:Annotated[Session,Depends(get_db)],
-                 response_model=schemas.PostResponse,current_user:int=Depends(oauth2.get_current_user)):
+def update_post(id:int, posts:schemas.PostCreate,db:Annotated[Session,Depends(get_db)],
+                 current_user:int=Depends(oauth2.get_current_user)):
     post_query=db.query(model.Post).filter(model.Post.id==id)
     post=post_query.first()
     
@@ -101,5 +101,4 @@ def update_post(id:int, posts:schemas.PostBase,db:Annotated[Session,Depends(get_
     post_query.update(posts.model_dump(exclude_unset=True),synchronize_session=False)
     db.commit()
     db.refresh(post)
-
     return post

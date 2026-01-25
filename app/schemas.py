@@ -31,6 +31,11 @@ class PostBase(BaseModel):
     content: str
     published: Optional[bool] = True
 
+class PostCreate(BaseModel):
+    title: str
+    content: str
+    published: Optional[bool] = True
+
 class Post(PostBase):
     pass
 

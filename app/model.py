@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, TIMESTAMP, text,ForeignKey
 from .database import Base
 from sqlalchemy.orm import relationship
+
 class Post(Base):
     __tablename__ = 'posts'
 
@@ -27,6 +28,7 @@ class User(Base):
         nullable=False,
         server_default=text('now()')
     )
+    phone_number=Column(String)
 
 class Vote(Base):
     __tablename__="votes"
